@@ -1,0 +1,34 @@
+.386
+DATA SEGMENT USE16
+    INPUT DB 'PLEASE INPUT X(0~9);$'
+    TAB DB  'ZERO   $','FIRST  $','SECOND $','THIRD  $','FORTH  $','FIFTH  $','SIXTH  $','SEVEN  $','EIGHT  $','NINE   $'
+    X   DB  ?
+    XXX DB  ?
+DATA ENDS
+
+STACK SEGMENT USE16 STACK
+    DB 200 DUP(0)
+STACK ENDS
+
+CODE SEGMENT USE16
+    ASSUME CS:CODE,DS:DATA,SS:STACK
+BEGIN:  MOV AX,DATA
+        MOV DS,AX
+        MOV DX,OFFSET   INPUT
+        MOV AH,9
+        INT 21H
+        MOV AH,1
+        INT 21H
+        AND AL,0FH
+        MOV X,AL
+        XOR EBX,EBX
+        MOV BL,AL
+        MOV AX,TAB[EBX * 8]
+        MOV XXX, AX
+        LEA DX, TAB[EBX * 8]
+        MOV AH,9
+        INT 21H
+EXIT:   MOV AH, 4CH
+        INT 21H
+CODE    ENDS
+    END BEGIN
