@@ -1,0 +1,32 @@
+.386
+DATA SEGMENT USE16
+    N       DW  23
+    SQUARE  DW  ?
+DATA ENDS
+
+STACK SEGMENT USE16 STACK
+          DB 200 DUP(0)
+STACK ENDS
+
+CODE SEGMENT USE16
+          ASSUME CS:CODE, DS:DATA, SS: STACK
+
+START:  MOV AX, DATA
+        MOV DS, AX
+
+        MOV AX, 0
+        MOV CX, 23
+        MOV BX, 1
+
+LOOPA:  ADD AX, BX
+        ADD BX, 2
+        DEC CX
+        JNZ LOOPA
+
+        MOV SQUARE, AX
+        
+        MOV AH, 4CH
+        INT 21H
+CODE ENDS
+	END START
+	
