@@ -1,0 +1,75 @@
+;这是书上的习题4.7
+.386
+DATA SEGMENT USE16
+    INPUT DB 0AH, 0DH, 'THE ASCLL CODE OF $'
+    INPUT1 DB ' IS $' 
+    BUFA DB 15 DUP(0)
+    TEMP DB ?
+DATA ENDS
+STACK SEGMENT USE16 STACK
+    DB 200 DUP(0)
+STACK ENDS
+CODE SEGMENT USE16
+    ASSUME CS:CODE, DS:DATA, SS:STACK
+COUT MACRO k
+    LEA DX, k
+    MOV AH, 9
+    INT 21H
+ENDM
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+L:  COUT INPUT
+    XOR EAX, EAX
+    MOV AH, 1      ;一号调用键盘输入
+    INT 21H
+    CMP AL, 0DH    ;检测是否是回车
+    JE OK
+    XOR AH, AH
+    CALL PADIX
+    COUT INPUT1    ;IS
+    COUT BUFA     
+    JMP L
+OK: MOV AH, 4CH
+    INT 21H
+
+PADIX PROC          ;EAX 待转换数字  
+    PUSH EAX        ;BUFA 存答案的  SI 相应的指针
+    PUSH EBX
+    PUSH ECX         
+    PUSH EDX 
+    PUSH SI
+    MOV EBX, 16     ;EBX 基数
+    LEA SI, BUFA
+    XOR CX, CX
+LOP1:XOR EDX, EDX
+    DIV EBX
+    PUSH DX
+    INC CX
+    OR EAX, EAX
+    JNZ LOP1
+
+LOP2:POP AX
+    CMP AL, 10
+    JB L3
+    ADD AL, 7
+
+L3: ADD AL, 30H
+    MOV [SI], AL
+    INC SI
+    LOOP LOP2
+
+    MOV BYTE PTR [SI], 'H'
+    MOV BYTE PTR [SI+1], '$'
+
+    POP SI
+    POP EDX
+    POP ECX
+    POP EBX
+    POP EAX
+    RET 
+PADIX ENDP
+
+CODE ENDS
+    END START
